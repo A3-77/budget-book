@@ -18,7 +18,7 @@
 
 ## 装到安卓手机（推荐）
 
-到 [Releases](../../releases/latest) 下载 `预算本.apk`：
+到 [Releases](../../releases/latest) 下载最新的 APK（形如 `budget-book-v2.7.apk`）：
 
 1. 把 APK 传到手机 —— 微信/QQ 发给自己、数据线拷贝、网盘都行
 2. 手机上点开这个文件安装
