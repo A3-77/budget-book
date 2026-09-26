@@ -1,0 +1,24 @@
+# ===== 构建产物 =====
+android/app/build/
+android/build/
+android/.gradle/
+.gradle/
+android/local.properties
+*.apk
+
+# ===== 签名密钥：绝对不要传到公开仓库 =====
+# 别人拿到这个文件就能签出「能覆盖安装到你手机上」的假 APK。
+# 它只存在你本机，换电脑时记得手动拷过去。
+android/budgetbook.jks
+android/keystore.properties
+
+# ===== 运行时产物 =====
+启动日志.txt
+.ui.xml
+
+# ===== 编辑器 / 系统 =====
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db

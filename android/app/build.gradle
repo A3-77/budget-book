@@ -1,0 +1,62 @@
+import java.util.Properties
+
+plugins {
+    id 'com.android.application'
+}
+
+// 正式签名：如果根目录有 keystore.properties 就用它，没有就退回 debug 签名，保证一定能打包成功
+def keystorePropsFile = rootProject.file('keystore.properties')
+def hasKeystore = keystorePropsFile.exists()
+def keystoreProps = new Properties()
+if (hasKeystore) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
+android {
+    namespace 'com.budgetbook.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.budgetbook.app'
+        minSdk 24
+        targetSdk 34
+        versionCode 11
+        versionName '2.7'
+        resourceConfigurations += ['zh', 'en']
+    }
+
+    if (hasKeystore) {
+        signingConfigs {
+            release {
+                storeFile rootProject.file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig hasKeystore ? signingConfigs.release : signingConfigs.debug
+        }
+        debug {
+            applicationIdSuffix ''
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+    }
+}
+
+// 这个 app 只用 Android 自带的 WebView，没有任何第三方运行时依赖
+dependencies { }
