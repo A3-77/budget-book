@@ -22,3 +22,12 @@ android/keystore.properties
 .vscode/
 .DS_Store
 Thumbs.db
+
+# ===== 不属于这个项目的散落文件 =====
+# 这个目录里混进了别的项目的东西（2026-09-27 建），
+# 别顺手 git add -A 把它们提交进这个公开仓库
+.release-notes.md
+成果包/
+成果包_*.md
+tools/make_docx.py
+

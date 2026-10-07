@@ -631,6 +631,83 @@ class Sheets {
         show(editing ? "修改这一笔" : "记一笔支出", body);
     }
 
+    /* ================= 课程详情 ================= */
+
+    static void course(Context c, Palette p, Courses.Course x, int week, Done done) {
+        new Sheets(c, null, p, null, done).showCourse(x, week);
+    }
+
+    private View infoRow(String label, String value) {
+        LinearLayout r = Ui.row(c);
+        r.setGravity(Gravity.TOP);
+        r.addView(Ui.tv(c, label, 12.5f, p.text3), Ui.lp(Ui.dp(64), ViewGroup.LayoutParams.WRAP_CONTENT));
+        TextView v = Ui.tv(c, value == null || value.isEmpty() ? "—" : value, 13.5f, p.text, true);
+        v.setLayoutParams(Ui.lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        r.addView(v);
+        return r;
+    }
+
+    private void showCourse(Courses.Course x, int week) {
+        LinearLayout body = Ui.col(c);
+
+        boolean lab = x.kind == Courses.KIND_LAB;
+        int fg = lab ? (p.dark ? 0xFFFBBF24 : 0xFF8A5A06) : p.brandInk;
+        TextView kind = Ui.tv(c, lab ? "实验课" : "理论课", 12, fg, true);
+        kind.setBackground(Ui.bg(Ui.mixAlpha(lab ? p.amber : p.brand, 0.15f, p.surface), 99));
+        Ui.pad(kind, 10, 4, 10, 4);
+        LinearLayout kindRow = Ui.row(c);
+        kindRow.addView(kind);
+        body.addView(kindRow, Ui.matchW());
+
+        boolean hasThisWeek = false;
+        for (int ww : x.weeks) if (ww == week) hasThisWeek = true;
+        TextView when = Ui.tv(c, hasThisWeek
+                ? Courses.weekLabel(week) + " 有课"
+                : Courses.weekLabel(week) + " 没有这节课",
+                13.5f, hasThisWeek ? p.text : p.text3, hasThisWeek);
+        LinearLayout.LayoutParams wlp = Ui.matchW();
+        wlp.topMargin = Ui.dp(12);
+        body.addView(when, wlp);
+
+        LinearLayout box = Ui.col(c);
+        box.setBackground(Ui.bg(p.surface2, 14));
+        Ui.pad(box, 14, 12, 14, 12);
+        LinearLayout.LayoutParams blp = Ui.matchW();
+        blp.topMargin = Ui.dp(12);
+        body.addView(box, blp);
+        box.addView(infoRow("时间", Courses.weekdayLabel(x.day) + " " + Courses.slotSections(x.slot)), Ui.matchW());
+        box.addView(infoRow("时段", Courses.slotTime(x.slot)), addTop(8));
+        box.addView(infoRow("周次", x.weeksStr), addTop(8));
+        box.addView(infoRow("教师", x.teacher), addTop(8));
+        box.addView(infoRow("教室", x.room), addTop(8));
+        if (!x.code.isEmpty()) box.addView(infoRow("课程编号", x.code), addTop(8));
+
+        if (x.conflict) {
+            StringBuilder sb = new StringBuilder();
+            for (String n : x.conflictWith) {
+                if (sb.length() > 0) sb.append("、");
+                sb.append(n);
+            }
+            TextView warn = Ui.tv(c, "⚠ 这节课和「" + sb + "」时间重叠。\n"
+                    + "两门课都在这个时段，具体怎么上请跟老师确认。", 12.5f,
+                    p.dark ? 0xFFFCA5A5 : 0xFFB91C1C, true);
+            warn.setLineSpacing(Ui.dp(3), 1f);
+            warn.setBackground(Ui.bg(Ui.mixAlpha(p.rose, 0.12f, p.surface), 14));
+            Ui.pad(warn, 14, 12, 14, 12);
+            LinearLayout.LayoutParams xlp = Ui.matchW();
+            xlp.topMargin = Ui.dp(12);
+            body.addView(warn, xlp);
+        }
+
+        show(x.name, body);
+    }
+
+    private LinearLayout.LayoutParams addTop(int dp) {
+        LinearLayout.LayoutParams lp = Ui.matchW();
+        lp.topMargin = Ui.dp(dp);
+        return lp;
+    }
+
     /* ================= 本月可用 ================= */
 
     private void showAllow() {

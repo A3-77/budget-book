@@ -40,8 +40,10 @@ public class MainActivity extends Activity {
     private TextView fab;
 
     private String ym;
-    /** 下面显示哪个：plan = 预算规划，ledger = 支出流水。点汇总栏那两项切换 */
+    /** 下面显示哪个：plan = 预算规划，ledger = 支出流水，schedule = 课程表 */
     private String view = "plan";
+    /** 课程表正在看第几周 */
+    private int week = Courses.currentWeek();
 
     @Override
     protected void onCreate(Bundle saved) {
@@ -62,6 +64,7 @@ public class MainActivity extends Activity {
         super.onSaveInstanceState(out);
         out.putString("ym", ym);
         out.putString("view", view);
+        out.putInt("week", week);
     }
 
     @Override
@@ -69,6 +72,7 @@ public class MainActivity extends Activity {
         super.onRestoreInstanceState(saved);
         ym = saved.getString("ym", Store.ymNow());
         view = saved.getString("view", "plan");
+        week = saved.getInt("week", Courses.currentWeek());
         render();
     }
 
@@ -270,17 +274,191 @@ public class MainActivity extends Activity {
         double spent = store.monthSpent(ym);
 
         LinearLayout sum = Ui.row(this);
-        sum.setWeightSum(2);
+        sum.setWeightSum(3);
         sum.addView(tabCell("已规划", "¥" + Ui.money(plan), "plan", 0), cellLp(0));
-        sum.addView(tabCell("已支配", "¥" + Ui.money(spent), "ledger", 8), cellLp(8));
+        sum.addView(tabCell("已支配", "¥" + Ui.money(spent), "ledger", 6), cellLp(6));
+        sum.addView(tabCell("课程表", Courses.weekLabel(Courses.currentWeek()), "schedule", 6), cellLp(6));
         box.addView(sum, Ui.matchW());
 
         if ("ledger".equals(view)) {
             box.addView(ledgerBody(), topMargin(10));
+        } else if ("schedule".equals(view)) {
+            box.addView(scheduleBody(), topMargin(10));
         } else {
             box.addView(planBody(), topMargin(10));
         }
         return box;
+    }
+
+    /* ================= 课程表 ================= */
+
+    private View scheduleBody() {
+        LinearLayout box = Ui.col(this);
+
+        // 周次条
+        LinearLayout bar = Ui.row(this);
+        bar.setBackground(Ui.bg(p.surface, 17));
+        bar.setElevation(Ui.dp(2));
+        Ui.pad(bar, 8, 8, 8, 8);
+
+        bar.addView(navBtn("‹", v -> {
+            week = Math.max(1, week - 1);
+            render();
+        }));
+
+        LinearLayout mid = Ui.col(this);
+        TextView t1 = Ui.tv(this, Courses.weekLabel(week), 15, p.text, true);
+        t1.setGravity(Gravity.CENTER);
+        int thisWeek = Courses.currentWeek();
+        String sub = week == thisWeek ? "就是本周" : "周 " + Courses.dateLabel(week, 1) + " ~ " + Courses.dateLabel(week, 5);
+        TextView t2 = Ui.tv(this, sub, 11, p.text3);
+        t2.setGravity(Gravity.CENTER);
+        mid.addView(t1, Ui.matchW());
+        mid.addView(t2, Ui.matchW());
+        LinearLayout.LayoutParams mlp = Ui.lp(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+        mlp.leftMargin = mlp.rightMargin = Ui.dp(6);
+        bar.addView(mid, mlp);
+
+        bar.addView(navBtn("›", v -> {
+            week = Math.min(Courses.WEEKS_TOTAL, week + 1);
+            render();
+        }));
+
+        if (week != thisWeek) {
+            bar.addView(smallBtn("本周", v -> {
+                week = Courses.currentWeek();
+                render();
+            }), rightMargin(6));
+        }
+        box.addView(bar, Ui.matchW());
+
+        box.addView(scheduleGrid(), topMargin(10));
+
+        boolean anyConflict = false;
+        for (int d = 1; d <= 5 && !anyConflict; d++) {
+            for (int s = 1; s <= 5 && !anyConflict; s++) {
+                if (Courses.at(d, s, week).size() > 1) anyConflict = true;
+            }
+        }
+        TextView tip = Ui.tv(this, anyConflict
+                ? "红框 = 这一格有两节课撞在一起，点开任意一节看详情"
+                : "点任意一节课看详情（教室 / 教师 / 周次）", 11.5f, p.text3);
+        tip.setGravity(Gravity.CENTER);
+        box.addView(tip, topMargin(12));
+        return box;
+    }
+
+    private View scheduleGrid() {
+        LinearLayout card = Ui.card(this, p);
+        Ui.pad(card, 6, 8, 6, 8);
+
+        int cardW = Ui.screenW(this) - Ui.dp(32) - Ui.dp(12);
+        int timeW = Ui.dp(34);
+        int gap = Ui.dp(4);
+        int dayW = (cardW - timeW - gap * 4) / 5;
+        int rowH = Ui.dp(80);
+        int today = Courses.todayDay();
+
+        // 表头：日期
+        LinearLayout head = Ui.row(this);
+        View blank = new View(this);
+        head.addView(blank, Ui.lp(timeW, Ui.dp(30)));
+        for (int d = 1; d <= 5; d++) {
+            boolean isToday = d == today;
+            LinearLayout h = Ui.col(this);
+            TextView nm = Ui.tv(this, "周" + "一二三四五".charAt(d - 1), 11.5f,
+                    isToday ? p.brandInk : p.text2, isToday);
+            nm.setGravity(Gravity.CENTER);
+            TextView dt = Ui.tv(this, Courses.dateLabel(week, d), 9.5f, p.text3);
+            dt.setGravity(Gravity.CENTER);
+            h.addView(nm, Ui.matchW());
+            h.addView(dt, Ui.matchW());
+            head.addView(h, dayLp(dayW, gap, d));
+        }
+        card.addView(head, Ui.matchW());
+
+        // 5 个大节
+        for (int s = 1; s <= 5; s++) {
+            LinearLayout row = Ui.row(this);
+
+            LinearLayout t = Ui.col(this);
+            t.setGravity(Gravity.CENTER);
+            TextView num = Ui.tv(this, Courses.SLOTS[s - 1][0], 13, p.text2, true);
+            num.setGravity(Gravity.CENTER);
+            TextView time = Ui.tv(this, Courses.SLOTS[s - 1][1], 8.5f, p.text3);
+            time.setGravity(Gravity.CENTER);
+            t.addView(num, Ui.matchW());
+            t.addView(time, Ui.matchW());
+            row.addView(t, Ui.lp(timeW, rowH));
+
+            for (int d = 1; d <= 5; d++) row.addView(dayCell(d, s, today), dayLp(dayW, gap, d));
+
+            LinearLayout.LayoutParams rlp = Ui.matchW();
+            rlp.topMargin = Ui.dp(4);
+            card.addView(row, rlp);
+        }
+        return card;
+    }
+
+    private LinearLayout.LayoutParams dayLp(int width, int gap, int index) {
+        LinearLayout.LayoutParams lp = Ui.lp(width, ViewGroup.LayoutParams.MATCH_PARENT);
+        if (index > 1) lp.leftMargin = gap;
+        return lp;
+    }
+
+    /** 一个格子：可能一节课都没有，也可能挤了两节（那就是这周真的撞了） */
+    private View dayCell(int d, int s, int today) {
+        List<Courses.Course> list = Courses.at(d, s, week);
+        // 只有「这一周这一格真的有两节课」才算冲突。
+        // 课程本身在别的周次有重叠不算 —— 否则第 5 周就会把 6-17 周才开始的实验课误报成冲突。
+        boolean clash = list.size() > 1;
+
+        LinearLayout cell = Ui.col(this);
+        boolean isToday = d == today;
+        cell.setBackground(Ui.bg(isToday ? Ui.mixAlpha(p.brand, 0.07f, p.surface) : p.surface2, 10));
+        Ui.pad(cell, 2, 2, 2, 2);
+
+        for (Courses.Course x : list) {
+            LinearLayout b = Ui.col(this);
+            b.setGravity(Gravity.CENTER);
+            int bg, fg, line;
+            if (x.kind == Courses.KIND_LAB) {
+                bg = Ui.mixAlpha(p.amber, 0.16f, p.surface);
+                fg = p.dark ? 0xFFFBBF24 : 0xFF8A5A06;
+                line = Ui.mixAlpha(p.amber, 0.5f, p.surface);
+            } else {
+                bg = Ui.mixAlpha(p.brand, 0.11f, p.surface);
+                fg = p.brandInk;
+                line = Ui.mixAlpha(p.brand, 0.35f, p.surface);
+            }
+            b.setBackground(Ui.bgStroke(bg, clash ? p.rose : line, clash ? 1.5f : 1f, 8));
+
+            TextView nm = Ui.tv(this, x.name, 9.5f, fg, true);
+            nm.setGravity(Gravity.CENTER);
+            nm.setMaxLines(3);
+            nm.setEllipsize(TextUtils.TruncateAt.END);
+            nm.setLineSpacing(Ui.dp(1), 1f);
+            b.addView(nm, Ui.matchW());
+
+            if (!x.room.isEmpty() && !"待定".equals(x.room)) {
+                TextView rm = Ui.tv(this, x.room, 8f, fg);
+                rm.setGravity(Gravity.CENTER);
+                rm.setMaxLines(1);
+                rm.setEllipsize(TextUtils.TruncateAt.END);
+                LinearLayout.LayoutParams rlp = Ui.matchW();
+                rlp.topMargin = Ui.dp(1);
+                b.addView(rm, rlp);
+            }
+
+            LinearLayout.LayoutParams blp = Ui.matchW();
+            blp.weight = 1;
+            if (cell.getChildCount() > 0) blp.topMargin = Ui.dp(2);
+            cell.addView(b, blp);
+
+            b.setOnClickListener(v -> Sheets.course(this, p, x, week, null));
+            Ui.tappable(this, b);
+        }
+        return cell;
     }
 
     /** 规划视图：分类卡片 */
