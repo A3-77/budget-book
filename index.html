@@ -4,20 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#5b5bd6">
-<meta name="description" content="预算本 —— 先定预算、再记每天，还能看课程表">
-<title>预算本 · 先定预算，再记每天</title>
+<meta name="description" content="B24级通信工程（4）班 课程表">
+<title>课程表 · B24通信4班</title>
 
-<!-- 加到手机桌面用（iOS） -->
+<!-- 加到 iPhone 主屏幕 -->
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="预算本">
+<meta name="apple-mobile-web-app-title" content="课程表">
 <meta name="format-detection" content="telephone=no">
 <style>
-/* ============ 主题变量 ============ */
 :root{
   --bg:#f4f5fa;
   --surface:#ffffff;
@@ -29,12 +28,15 @@
   --brand:#5b5bd6;
   --brand-2:#8b7cf6;
   --brand-ink:#5b5bd6;
-  --mint:#10b981;
-  --amber:#f59e0b;
   --rose:#f43f5e;
-  --shadow:0 1px 2px rgba(17,20,32,.04), 0 10px 30px -14px rgba(17,20,32,.18);
-  --seg-on:#ffffff;
+  --amber:#f59e0b;
   --lab-ink:#8a5a06;
+  --shadow:0 1px 2px rgba(17,20,32,.05), 0 10px 26px -16px rgba(17,20,32,.24);
+  --theory-bg:rgba(91,91,214,.11);
+  --theory-line:rgba(91,91,214,.32);
+  --lab-bg:rgba(245,158,11,.17);
+  --lab-line:rgba(245,158,11,.5);
+  --today-bg:rgba(91,91,214,.07);
 }
 html[data-theme="dark"]{
   color-scheme:dark;
@@ -46,556 +48,215 @@ html[data-theme="dark"]{
   --text-3:#6d768c;
   --line:#252c3d;
   --brand-ink:#b3a8ff;
-  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 32px -16px rgba(0,0,0,.8);
-  --seg-on:#2c3448;
   --lab-ink:#fbbf24;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 12px 30px -18px rgba(0,0,0,.9);
+  --theory-bg:rgba(99,102,241,.2);
+  --theory-line:rgba(129,140,248,.45);
+  --lab-bg:rgba(245,158,11,.2);
+  --lab-line:rgba(251,191,36,.5);
+  --today-bg:rgba(99,102,241,.13);
 }
 html{color-scheme:light;-webkit-text-size-adjust:100%}
 
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;height:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
+  background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased;
   -webkit-tap-highlight-color:transparent;
   overscroll-behavior-y:none;
 }
 body::before{
   content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(620px 420px at 8% -8%, rgba(124,108,246,.20), transparent 62%),
-    radial-gradient(560px 420px at 98% -2%, rgba(16,185,129,.14), transparent 60%);
+  background:radial-gradient(620px 420px at 8% -8%, rgba(124,108,246,.20), transparent 62%),
+             radial-gradient(560px 420px at 98% -2%, rgba(16,185,129,.13), transparent 60%);
 }
 html[data-theme="dark"] body::before{
-  background:
-    radial-gradient(620px 420px at 8% -8%, rgba(124,108,246,.16), transparent 62%),
-    radial-gradient(560px 420px at 98% -2%, rgba(16,185,129,.10), transparent 60%);
+  background:radial-gradient(620px 420px at 8% -8%, rgba(124,108,246,.16), transparent 62%),
+             radial-gradient(560px 420px at 98% -2%, rgba(16,185,129,.09), transparent 60%);
 }
 
-.app{position:relative;z-index:1;max-width:780px;margin:0 auto;padding:16px 16px 130px}
+.app{
+  position:relative;z-index:1;max-width:660px;margin:0 auto;
+  padding:12px 10px calc(14px + env(safe-area-inset-bottom));
+  min-height:100%;
+  display:flex;flex-direction:column;gap:10px;
+}
 
-/* ============ 顶栏：月份 + 工具，一行 ============ */
-.topbar{display:flex;align-items:center;gap:6px;margin-bottom:12px}
-.mnav{
-  width:34px;height:34px;flex:0 0 auto;border-radius:11px;border:1px solid var(--line);
-  background:var(--surface);color:var(--text-2);font-size:16px;line-height:1;
-  cursor:pointer;display:grid;place-items:center;transition:.16s;font-family:inherit;
+/* ---------- 顶部 ---------- */
+.bar{display:flex;align-items:center;gap:6px}
+.nav{
+  width:36px;height:36px;flex:0 0 auto;border-radius:12px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text-2);font-size:17px;line-height:1;
+  cursor:pointer;display:grid;place-items:center;font-family:inherit;transition:.15s;
+  box-shadow:var(--shadow);
 }
-.mnav:hover{border-color:var(--brand);color:var(--brand)}
-.mnav:active{transform:scale(.94)}
-.mlabel{flex:1;text-align:center;font-size:15px;font-weight:700;letter-spacing:.02em;min-width:0}
-.mlabel span{display:block;font-size:11px;color:var(--text-3);font-weight:500;margin-top:2px}
-.tbtn{
-  height:34px;padding:0 9px;border-radius:11px;border:1px solid var(--line);
-  background:var(--surface);color:var(--text-2);font-size:11.5px;font-weight:650;
-  font-family:inherit;cursor:pointer;transition:.16s;flex:0 0 auto;white-space:nowrap;
+.nav:hover{border-color:var(--brand);color:var(--brand)}
+.nav:active{transform:scale(.94)}
+.wk{flex:1;text-align:center;min-width:0}
+.wk b{display:block;font-size:17px;font-weight:750;letter-spacing:.01em}
+.wk span{display:block;font-size:11.5px;color:var(--text-3);margin-top:2px}
+.pill{
+  height:36px;padding:0 11px;border-radius:12px;border:1px solid var(--line);
+  background:var(--surface);color:var(--text-2);font-size:12px;font-weight:650;
+  font-family:inherit;cursor:pointer;flex:0 0 auto;transition:.15s;box-shadow:var(--shadow);
 }
-.tbtn:hover{border-color:var(--brand);color:var(--brand)}
-.tbtn:active{transform:scale(.94)}
+.pill:hover{border-color:var(--brand);color:var(--brand)}
+.pill:active{transform:scale(.94)}
 
-/* ============ Hero ============ */
-.hero{
-  position:relative;overflow:hidden;border-radius:24px;padding:20px 20px 18px;color:#fff;
-  background:linear-gradient(135deg,#5b5bd6 0%,#7c6cf6 52%,#a78bfa 100%);
-  box-shadow:0 22px 44px -22px rgba(91,91,214,.95);
-}
-.hero::after{
-  content:"";position:absolute;right:-60px;top:-70px;width:220px;height:220px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.32),transparent 68%);
-  pointer-events:none;
-}
-.hero-top{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;opacity:.92;font-weight:650;letter-spacing:.04em;position:relative;z-index:1}
-.hero-pill{
-  background:rgba(255,255,255,.2);border:0;padding:6px 12px;border-radius:99px;
-  font-size:11.5px;letter-spacing:0;color:#fff;font-family:inherit;font-weight:650;
-  cursor:pointer;transition:background .16s;position:relative;z-index:1;
-}
-.hero-pill:hover{background:rgba(255,255,255,.34)}
-.hero-amount{font-size:36px;font-weight:800;letter-spacing:-.02em;margin:8px 0 0;line-height:1.12}
-.hero-amount small{font-size:19px;font-weight:700;margin-right:3px;opacity:.85}
-.hero-free{display:flex;align-items:baseline;gap:5px;font-size:13px;opacity:.92;margin:4px 0 15px}
-.hero-free b{font-size:15px;font-weight:750;opacity:1}
-.hero-bar{height:9px;border-radius:99px;background:rgba(255,255,255,.25);overflow:hidden;position:relative;z-index:1}
-.hero-bar i{display:block;height:100%;border-radius:99px;background:#fff;transition:width .6s cubic-bezier(.22,1,.36,1)}
-.hero-bar.over i{background:#ffd0d8}
-
-/* ============ 汇总栏：三格切换 ============ */
-.sum3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 0}
-.tabc{
-  background:var(--surface);border:1px solid var(--line);border-radius:17px;
-  padding:11px 12px;box-shadow:var(--shadow);cursor:pointer;transition:.16s;
-  text-align:left;font-family:inherit;display:block;width:100%;min-width:0;
-}
-.tabc:hover{border-color:rgba(91,91,214,.45)}
-.tabc:active{transform:scale(.98)}
-.tabc.on{border:1.5px solid var(--brand);background:rgba(91,91,214,.09)}
-.tabc .l{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:11.5px;color:var(--text-3);font-weight:650}
-.tabc.on .l{color:var(--brand-ink)}
-.tabc b{display:block;font-size:15.5px;font-weight:750;margin-top:3px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tabc.on b{color:var(--brand-ink)}
-.tabc .arw{font-size:9px;line-height:1;flex:0 0 auto}
-
-/* ============ 分类卡片 ============ */
-.grp{
-  background:var(--surface);border:1px solid var(--line);border-radius:20px;
-  box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;
-}
-.grp-head{display:flex;gap:11px;align-items:center;padding:14px;cursor:pointer;transition:background .16s}
-.grp-head:hover{background:rgba(91,91,214,.04)}
-.grp-head .ico{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--surface-2);font-size:18px;flex:0 0 auto}
-.grp-head .gb{flex:1;min-width:0}
-.row1{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.row1 b{font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.plan{font-size:15px;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
-.plan em{font-size:11px;font-style:normal;color:var(--text-3);font-weight:500;margin-left:1px}
-.row2{font-size:11.5px;color:var(--text-3);margin-top:3px}
-
-.grp-items{border-top:1px solid var(--line)}
-.gitem{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;transition:background .16s}
-.gitem:hover{background:rgba(91,91,214,.04)}
-.gitem .gi-main{flex:1;min-width:0}
-.gitem .gi-main b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gitem .gi-main span{display:block;font-size:11px;color:var(--text-3);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gitem .gi-amt{font-size:14px;font-weight:750;white-space:nowrap}
-.gempty{padding:12px 14px;font-size:12.5px;color:var(--text-3)}
-.gadd{padding:12px 14px 13px;font-size:13.5px;font-weight:700;color:var(--brand-ink);cursor:pointer;transition:background .16s}
-.gadd:hover{background:rgba(91,91,214,.05)}
-
-.add-row{
-  width:100%;padding:15px;border-radius:18px;border:1.5px dashed var(--line);
-  background:transparent;color:var(--text-2);font-size:14.5px;font-weight:650;
-  font-family:inherit;cursor:pointer;margin-top:2px;transition:.18s;
-}
-.add-row:hover{border-color:var(--brand);color:var(--brand);background:rgba(91,91,214,.06)}
-
-.empty-state{
-  text-align:center;padding:40px 22px;background:var(--surface);border-radius:24px;
-  border:1px solid var(--line);box-shadow:var(--shadow);
-}
-.empty-state .e{font-size:44px;line-height:1}
-.empty-state h3{margin:14px 0 7px;font-size:17px;font-weight:700}
-.empty-state p{margin:0 0 20px;color:var(--text-2);font-size:13.5px;line-height:1.65}
-.empty-state .btn{max-width:260px;margin:0 auto}
-
-/* ============ 流水 ============ */
-.daygroup{margin-bottom:14px}
-.dayhead{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px 8px}
-.dayhead b{font-size:12.5px;font-weight:700;color:var(--text-2)}
-.dayhead span{font-size:12px;color:var(--text-3);font-weight:650}
-.rec{
-  display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);
-  border:1px solid var(--line);border-radius:16px;margin-bottom:7px;cursor:pointer;transition:.16s;
-}
-.rec:hover{border-color:rgba(91,91,214,.4);transform:translateY(-1px)}
-.rec .r-main{flex:1;min-width:0;font-size:14.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rec .r-main.dim{color:var(--text-3);font-weight:500;font-size:13.5px}
-.rec .r-amt{font-size:15px;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
-
-/* ============ 课程表 ============ */
-.weekbar{
-  display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line);
-  border-radius:17px;padding:8px;box-shadow:var(--shadow);margin-bottom:10px;
-}
+/* ---------- 课表 ---------- */
 .sched{
-  background:var(--surface);border:1px solid var(--line);border-radius:20px;
-  box-shadow:var(--shadow);padding:6px;display:grid;
-  grid-template-columns:34px repeat(5,1fr);gap:4px;
+  background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  box-shadow:var(--shadow);padding:6px;
+  display:grid;grid-template-columns:32px repeat(5,1fr);gap:4px;
+  flex:1;
+  grid-template-rows:auto repeat(5, minmax(86px, 1fr));
 }
-.sg-hd{text-align:center;padding:2px 0 6px}
-.sg-hd b{display:block;font-size:11px;font-weight:700;color:var(--text-2)}
-.sg-hd span{display:block;font-size:9px;color:var(--text-3);margin-top:1px}
-.sg-hd.today b{color:var(--brand-ink)}
-.sg-time{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.sg-time b{font-size:12px;font-weight:700;color:var(--text-2)}
-.sg-time span{font-size:8px;color:var(--text-3)}
-.sg-cell{
+.hd{text-align:center;padding:2px 0 6px}
+.hd b{display:block;font-size:11px;font-weight:700;color:var(--text-2)}
+.hd span{display:block;font-size:9.5px;color:var(--text-3);margin-top:1px}
+.hd.today b{color:var(--brand-ink)}
+
+.tm{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.tm b{font-size:13px;font-weight:750;color:var(--text-2)}
+.tm span{font-size:8.5px;color:var(--text-3);letter-spacing:-.02em}
+
+.cell{
   background:var(--surface-2);border-radius:10px;padding:2px;
-  display:flex;flex-direction:column;gap:2px;min-height:78px;
+  display:flex;flex-direction:column;gap:2px;min-height:0;
 }
-.sg-cell.today{background:rgba(91,91,214,.07)}
-.sg-c{
-  flex:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:3px 2px;text-align:center;cursor:pointer;overflow:hidden;min-height:0;
-  background:rgba(91,91,214,.11);border:1px solid rgba(91,91,214,.35);
-}
-.sg-c:active{transform:scale(.96)}
-.sg-c.lab{background:rgba(245,158,11,.16);border-color:rgba(245,158,11,.5)}
-.sg-c.clash{border:1.5px solid var(--rose)}
-.sg-c b{font-size:9.5px;font-weight:700;line-height:1.25;color:var(--brand-ink);word-break:break-word;max-width:100%}
-.sg-c.lab b{color:var(--lab-ink)}
-.sg-c span{font-size:8px;color:var(--text-3);margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sched-tip{font-size:11.5px;color:var(--text-3);text-align:center;margin:12px 0 0;line-height:1.6}
+.cell.today{background:var(--today-bg)}
 
-/* ============ FAB ============ */
-.fab{
-  position:fixed;right:20px;bottom:calc(26px + env(safe-area-inset-bottom));z-index:40;
-  width:60px;height:60px;border-radius:22px;border:0;
-  background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;
-  font-size:28px;font-weight:400;line-height:1;cursor:pointer;
-  box-shadow:0 14px 30px -10px rgba(91,91,214,.95);
-  transition:transform .18s;
-  font-family:inherit;
-  display:grid;place-items:center;padding-bottom:2px;
+.c{
+  flex:1;border-radius:8px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:4px 2px;overflow:hidden;min-height:0;cursor:pointer;
+  background:var(--theory-bg);border:1px solid var(--theory-line);
+  transition:transform .14s;
 }
-.fab:hover{transform:translateY(-3px) scale(1.03)}
-.fab:active{transform:scale(.94)}
-@media(min-width:840px){ .fab{right:calc(50vw - 390px + 20px)} }
+.c:active{transform:scale(.95)}
+.c.lab{background:var(--lab-bg);border-color:var(--lab-line)}
+.c.clash{border:1.5px solid var(--rose)}
+.c b{font-size:10px;font-weight:700;line-height:1.25;color:var(--brand-ink);word-break:break-word;max-width:100%}
+.c.lab b{color:var(--lab-ink)}
+.c span{font-size:8px;color:var(--text-3);margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* ============ 底部弹层 ============ */
+.tip{font-size:11px;color:var(--text-3);text-align:center;line-height:1.5;margin:0}
+
+/* ---------- 弹层 ---------- */
 .mask{
-  position:fixed;inset:0;z-index:50;background:rgba(9,11,18,.46);
-  opacity:0;pointer-events:none;transition:opacity .26s;
+  position:fixed;inset:0;z-index:50;background:rgba(9,11,18,.45);
+  opacity:0;pointer-events:none;transition:opacity .24s;
 }
 .mask.on{opacity:1;pointer-events:auto;backdrop-filter:blur(3px)}
 .sheet{
-  position:fixed;left:50%;bottom:0;z-index:51;width:min(580px,100%);
-  max-height:92vh;overflow-y:auto;padding:20px 20px calc(26px + env(safe-area-inset-bottom));
+  position:fixed;left:50%;bottom:0;z-index:51;width:min(520px,100%);
+  max-height:86vh;overflow-y:auto;
+  padding:20px 20px calc(26px + env(safe-area-inset-bottom));
   background:var(--surface);border-radius:26px 26px 0 0;
   box-shadow:0 -18px 50px -20px rgba(0,0,0,.5);
-  transform:translate(-50%,110%);transition:transform .34s cubic-bezier(.22,1,.36,1);
+  transform:translate(-50%,110%);transition:transform .32s cubic-bezier(.22,1,.36,1);
   -webkit-overflow-scrolling:touch;
 }
 .sheet.on{transform:translate(-50%,0)}
-.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-.sheet-head h3{margin:0;font-size:18px;font-weight:750}
+.sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+.sheet-head h3{margin:0;font-size:19px;font-weight:750;line-height:1.3}
 .sheet-head .x{
-  width:34px;height:34px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);
-  color:var(--text-2);font-size:14px;cursor:pointer;font-family:inherit;display:grid;place-items:center;
+  width:34px;height:34px;flex:0 0 auto;border-radius:12px;border:1px solid var(--line);
+  background:var(--surface-2);color:var(--text-2);font-size:14px;cursor:pointer;
+  font-family:inherit;display:grid;place-items:center;
 }
 .sheet-head .x:hover{color:var(--rose);border-color:var(--rose)}
-
-.field{display:block;margin-bottom:15px}
-.field>span{display:block;font-size:12px;color:var(--text-2);margin-bottom:8px;font-weight:650;letter-spacing:.02em}
-.field input{
-  width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);
-  background:var(--surface-2);color:var(--text);font-size:16px;font-family:inherit;
-  outline:none;transition:.18s;
-}
-.field input::placeholder{color:var(--text-3)}
-.field input:focus{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px rgba(91,91,214,.15)}
-
-.inline{display:flex;gap:10px}
-.mini{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:9px 13px;transition:.18s}
-.mini.grow{flex:1.9}
-.mini:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px rgba(91,91,214,.15)}
-.mini label{display:block;font-size:10.5px;color:var(--text-3);margin-bottom:2px}
-.mini input{width:100%;border:0;background:transparent;font-size:18px;font-weight:700;color:var(--text);outline:none;font-family:inherit;padding:0}
-
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{
-  padding:9px 13px;border-radius:12px;border:1px solid var(--line);
-  background:var(--surface-2);font-size:13px;color:var(--text-2);
-  cursor:pointer;font-family:inherit;transition:.16s;font-weight:650;
-}
-.chip:hover{border-color:var(--brand);color:var(--brand)}
-.chip.on{border-color:var(--brand);background:rgba(91,91,214,.13);color:var(--brand)}
-.chip.emo{font-size:18px;padding:7px 10px;line-height:1;font-weight:400}
-
-.preview{
-  margin:2px 0 17px;padding:13px 15px;border-radius:14px;font-size:13.5px;line-height:1.55;
-  background:rgba(16,185,129,.11);color:#0a7a58;font-weight:650;
-}
-html[data-theme="dark"] .preview{color:#5ee0b0;background:rgba(16,185,129,.14)}
-.preview b{font-weight:800}
-
-.btn{
-  width:100%;border:0;border-radius:16px;padding:15px;font-size:15.5px;font-weight:700;
-  font-family:inherit;cursor:pointer;transition:.16s;
-}
-.btn:active{transform:scale(.985)}
-.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 12px 26px -12px rgba(91,91,214,.95)}
-.btn.danger{background:rgba(244,63,94,.11);color:var(--rose);margin-top:10px}
-.btn.danger:hover{background:rgba(244,63,94,.18)}
-.btn.plain{background:var(--surface-2);color:var(--text-2);margin-top:10px}
-.amt-in{display:flex;align-items:center;gap:9px;padding:11px 15px;border-radius:16px;background:var(--surface-2);border:1px solid var(--line);transition:.18s}
-.amt-in:focus-within{border-color:var(--brand);background:var(--surface);box-shadow:0 0 0 3px rgba(91,91,214,.15)}
-.amt-in i{font-style:normal;color:var(--text-3);font-size:19px;font-weight:700}
-.amt-in input{flex:1;border:0;background:transparent;font-size:27px;font-weight:800;color:var(--text);outline:none;font-family:inherit;padding:0;width:100%;letter-spacing:-.02em}
-.sheet-note{font-size:12px;color:var(--text-3);line-height:1.6;margin:-4px 0 15px}
-
-/* 课程详情 */
-.cinfo{background:var(--surface-2);border-radius:14px;padding:12px 14px;margin-top:12px}
-.cinfo .r{display:flex;gap:8px;font-size:13px;line-height:1.7}
-.cinfo .r+.r{margin-top:6px}
-.cinfo .r i{font-style:normal;color:var(--text-3);font-size:12.5px;width:56px;flex:0 0 auto}
-.cinfo .r b{font-weight:650;flex:1;min-width:0}
-.warnbox{
-  margin-top:12px;padding:12px 14px;border-radius:14px;font-size:12.5px;line-height:1.6;font-weight:650;
+.kindtag{display:inline-block;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700;margin-top:6px}
+.kindtag.theory{background:var(--theory-bg);color:var(--brand-ink)}
+.kindtag.lab{background:var(--lab-bg);color:var(--lab-ink)}
+.when{margin-top:14px;font-size:13.5px}
+.when.yes{font-weight:700;color:var(--text)}
+.when.no{color:var(--text-3)}
+.info{background:var(--surface-2);border-radius:14px;padding:12px 14px;margin-top:12px}
+.info .r{display:flex;gap:8px;font-size:13.5px;line-height:1.7}
+.info .r+.r{margin-top:7px}
+.info .r i{font-style:normal;color:var(--text-3);font-size:12.5px;width:58px;flex:0 0 auto}
+.info .r b{font-weight:650;flex:1;min-width:0}
+.warn{
+  margin-top:12px;padding:12px 14px;border-radius:14px;
+  font-size:12.5px;line-height:1.6;font-weight:650;
   background:rgba(244,63,94,.12);color:#b91c1c;
 }
-html[data-theme="dark"] .warnbox{color:#fca5a5}
-.kindtag{display:inline-block;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:700}
-.kindtag.theory{background:rgba(91,91,214,.15);color:var(--brand-ink)}
-.kindtag.lab{background:rgba(245,158,11,.16);color:var(--lab-ink)}
+html[data-theme="dark"] .warn{color:#fca5a5}
 
-/* ============ toast ============ */
-.toast{
-  position:fixed;left:50%;bottom:104px;z-index:60;transform:translate(-50%,16px);
-  background:rgba(17,20,32,.94);color:#fff;padding:11px 20px;border-radius:14px;
-  font-size:13.5px;font-weight:650;opacity:0;pointer-events:none;transition:.28s;
-  backdrop-filter:blur(6px);white-space:nowrap;
+/* ---------- 窄屏 / 小屏 ---------- */
+@media(max-width:400px){
+  .app{padding:10px 8px calc(12px + env(safe-area-inset-bottom));gap:8px}
+  .nav{width:33px;height:33px;font-size:16px}
+  .pill{height:33px;padding:0 9px;font-size:11.5px}
+  .wk b{font-size:16px}
+  .sched{padding:5px;gap:3px;grid-template-columns:29px repeat(5,1fr);grid-template-rows:auto repeat(5,minmax(76px,1fr))}
+  .cell{border-radius:9px}
+  .c b{font-size:9.5px}
+  .c span{font-size:7.5px}
+  .hd b{font-size:10.5px}
+  .hd span{font-size:9px}
 }
-.toast.on{opacity:1;transform:translate(-50%,0)}
-
-/* ============ 手机端 ============ */
-@media(max-width:430px){
-  .app{padding:12px 12px 118px}
-  .topbar{gap:5px;margin-bottom:10px}
-  .mnav{width:32px;height:32px;font-size:15px}
-  .tbtn{height:32px;padding:0 8px;font-size:11px}
-  .mlabel{font-size:14px}
-  .mlabel span{font-size:10.5px}
-
-  .hero{border-radius:22px;padding:17px 17px 16px}
-  .hero-amount{font-size:32px}
-  .hero-free{font-size:12.5px;margin-bottom:13px}
-  .hero-free b{font-size:14px}
-
-  .sum3{gap:7px;margin-top:10px}
-  .tabc{padding:10px;border-radius:15px}
-  .tabc .l{font-size:10.5px}
-  .tabc b{font-size:14px}
-
-  .grp{border-radius:18px}
-  .grp-head{padding:12px;gap:10px}
-  .grp-head .ico{width:38px;height:38px;border-radius:12px;font-size:17px}
-  .row1 b{font-size:14.5px}
-  .plan{font-size:14.5px}
-  .row2{font-size:11px}
-  .gitem{padding:10px 12px}
-  .gitem .gi-main b{font-size:13.5px}
-  .gadd{padding:11px 12px 12px;font-size:13px}
-
-  .sched{padding:5px;gap:3px;grid-template-columns:30px repeat(5,1fr)}
-  .sg-hd b{font-size:10px}
-  .sg-hd span{font-size:8.5px}
-  .sg-time b{font-size:11px}
-  .sg-time span{font-size:7.5px}
-  .sg-cell{min-height:72px;border-radius:9px;padding:1.5px;gap:1.5px}
-  .sg-c b{font-size:9px}
-  .sg-c span{font-size:7.5px}
-
-  .rec{padding:11px 12px;border-radius:14px}
-  .rec .r-main{font-size:14px}
-  .rec .r-amt{font-size:14.5px}
-
-  .sheet{padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
-  .sheet-head h3{font-size:17px}
-  .chip{padding:9px 12px;font-size:12.5px}
-  .chip.emo{font-size:17px;padding:7px 9px}
-  .preview{font-size:13px;padding:12px 14px}
-  .toast{bottom:calc(100px + env(safe-area-inset-bottom))}
+@media(max-height:700px){
+  .sched{grid-template-rows:auto repeat(5,minmax(64px,1fr))}
 }
-@media(max-width:360px){
-  .tabc b{font-size:12.5px}
-  .tabc .l{font-size:9.5px}
-  .sg-c b{font-size:8.5px}
-  .sg-cell{min-height:66px}
-}
-/* 安全区 */
 @supports(padding:max(0px)){
-  .app{padding-top:max(12px,env(safe-area-inset-top));padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  .app{padding-top:max(12px,env(safe-area-inset-top));
+       padding-left:max(10px,env(safe-area-inset-left));
+       padding-right:max(10px,env(safe-area-inset-right))}
 }
 </style>
 </head>
 <body>
 
 <div class="app">
-  <div id="top"></div>
-  <main id="view"></main>
+  <header class="bar">
+    <button class="nav" data-act="prev" aria-label="上一周">‹</button>
+    <div class="wk">
+      <b id="wk-label">第 1 周</b>
+      <span id="wk-range"></span>
+    </div>
+    <button class="nav" data-act="next" aria-label="下一周">›</button>
+    <button class="pill" data-act="cur" id="btn-cur" hidden>本周</button>
+    <button class="pill" data-act="theme" id="btn-theme" aria-label="深浅色">☾</button>
+  </header>
+
+  <div class="sched" id="sched"></div>
+  <p class="tip" id="tip"></p>
 </div>
 
-<button class="fab" id="fab" title="记一笔支出" aria-label="记一笔支出">＋</button>
 <div class="mask" id="mask"></div>
 <div class="sheet" id="sheet"></div>
-<div class="toast" id="toast"></div>
-<input type="file" id="file" accept="application/json,.json" hidden>
 
 <script>
 /* =========================================================
-   预算本 —— 记账 + 课程表
-   数据全部存在本机浏览器（localStorage），可导出备份
-
-   预算那边是「计划」，流水那边是「实际」：
-     · 规划每月沿用（改某个月不影响别的月），月总额按当月天数重算
-     · 支配按日期分月，每月刷新
-     · 剩余可支配 = 本月可用 − 已规划 − 已支配
+   课程表 · B24级通信工程（4）班
+   纯静态：没有任何账号、没有云端、也没有你的数据
    ========================================================= */
 
-const $  = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-const KEY = 'budgetbook.v1';
-const EMOJIS = ['🍚','🛒','🚌','🏠','💡','📱','👕','💊','📚','🎮','✈️','🎁','🐱','💄','🏋️','🧾'];
-const CYCLES = ['day','week','month'];
-const CYCLE_LABEL = { day:'每天', week:'每周', month:'每月' };
-
-/* ---------- 工具 ---------- */
-const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
-const pad = n => String(n).padStart(2, '0');
-const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const round2 = n => Math.round((Number(n) + Number.EPSILON) * 100) / 100;
-const money = n => round2(n || 0).toLocaleString('zh-CN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-
-function currentYM(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
-function todayStr(){ const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
-function daysInMonth(ym){ const p = ym.split('-').map(Number); return new Date(p[0], p[1], 0).getDate(); }
-function shiftMonth(ym, k){ const p = ym.split('-').map(Number); const d = new Date(p[0], p[1] - 1 + k, 1); return d.getFullYear() + '-' + pad(d.getMonth() + 1); }
-function monthLabel(ym){ const p = ym.split('-').map(Number); return p[0] + ' 年 ' + p[1] + ' 月'; }
-function weekdayCN(ds){ const p = ds.split('-').map(Number); return ['周日','周一','周二','周三','周四','周五','周六'][new Date(p[0], p[1] - 1, p[2]).getDay()]; }
-function dayLabel(ds){
-  const t = todayStr();
-  if (ds === t) return '今天';
-  const y = new Date(); y.setDate(y.getDate() - 1);
-  const ys = y.getFullYear() + '-' + pad(y.getMonth() + 1) + '-' + pad(y.getDate());
-  if (ds === ys) return '昨天';
-  const p = ds.split('-').map(Number);
-  return p[1] + ' 月 ' + p[2] + ' 日 ' + weekdayCN(ds);
-}
-/** 在某个月里记账时默认填哪天：必须是那个月里的日子 */
-function defaultDateFor(ym){
-  if (ym === currentYM()) return todayStr();
-  const d = Math.min(new Date().getDate(), daysInMonth(ym));
-  return ym + '-' + pad(d);
-}
-
-/* ---------- 状态 ---------- */
-let state = { v: 3, months: {}, records: [], theme: 'auto' };
-const ui = { view: 'plan', month: currentYM(), week: null, ledgerNote: null };
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return;
-    const d = JSON.parse(raw);
-    state.theme = d.theme || 'auto';
-    state.records = Array.isArray(d.records) ? d.records.map(r => ({
-      id: r.id || uid(), date: r.date || '', amount: Number(r.amount) || 0,
-      note: r.note || '', createdAt: r.createdAt || 0
-    })).filter(r => r.date) : [];
-    state.months = {};
-    if (d.months && typeof d.months === 'object'){
-      for (const k of Object.keys(d.months)){
-        const m = d.months[k] || {};
-        const month = { allowance: (typeof m.allowance === 'number' ? m.allowance : null), groups: [] };
-        if (Array.isArray(m.groups)){
-          month.groups = m.groups.map(g => ({
-            id: g.id || uid(), name: g.name || '', emoji: g.emoji || '🧾',
-            items: Array.isArray(g.items) ? g.items.map(itemFrom) : []
-          }));
-        } else if (Array.isArray(m.items)){
-          // v2 升级：原来平铺的 items 收进一个分类
-          if (m.items.length){
-            month.groups.push({ id: uid(), name: '日常开销', emoji: '🧾', items: m.items.map(itemFrom) });
-          }
-        }
-        state.months[k] = month;
-      }
-    } else if (Array.isArray(d.items)){
-      // v1 升级
-      if (d.items.length){
-        state.months[currentYM()] = { allowance: null,
-          groups: [{ id: uid(), name: '日常开销', emoji: '🧾', items: d.items.map(itemFrom) }] };
-      }
-    }
-  }catch(e){ /* 数据坏了就当空的，别把应用搞崩 */ }
-}
-function itemFrom(i){
-  const cy = i.cycle;
-  return {
-    id: i.id || uid(), name: i.name || '',
-    cycle: (cy === 'week' || cy === 'month') ? cy : 'day',
-    times: Math.max(1, Number(i.times) || 1),
-    amount: Number(i.amount) || 0
-  };
-}
-function saveState(){
-  try{ localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch(e){ toast('本地存储写不进去，数据只在当前页面有效'); }
-}
-
-/* ---------- 每个月一份预算 ---------- */
-const cloneItem = it => ({ id: it.id, name: it.name, cycle: it.cycle, times: it.times, amount: it.amount });
-const cloneGroup = g => ({ id: g.id, name: g.name, emoji: g.emoji, items: g.items.map(cloneItem) });
-
-/** 读某个月的预算。规划「每个月都一样」，所以没单独建过就找最近的已建月份（优先更早的） */
-function monthData(ym){
-  const own = state.months[ym];
-  if (own) return own;
-  const keys = Object.keys(state.months).sort();
-  if (!keys.length) return { allowance: null, groups: [] };
-  let src = null;
-  for (const k of keys) if (k < ym) src = k;
-  if (!src) src = keys[0];
-  const s = state.months[src];
-  return { allowance: s.allowance, groups: s.groups.map(cloneGroup) };
-}
-function ensureMonth(ym){
-  if (!state.months[ym]){
-    const d = monthData(ym);
-    state.months[ym] = { allowance: d.allowance, groups: d.groups };
-  }
-  return state.months[ym];
-}
-const monthGroups = ym => monthData(ym).groups;
-const monthItems = ym => monthGroups(ym).reduce((a, g) => a.concat(g.items), []);
-
-/* ---------- 计算 ---------- */
-function periodsIn(ym, cycle){
-  const d = daysInMonth(ym);
-  if (cycle === 'day') return d;
-  if (cycle === 'week') return d / 7;
-  return 1;
-}
-const itemPlan = (it, ym) => round2(it.amount * Math.max(1, it.times) * periodsIn(ym, it.cycle));
-const groupPlan = (g, ym) => round2(g.items.reduce((s, it) => s + itemPlan(it, ym), 0));
-const monthPlan = ym => round2(monthGroups(ym).reduce((s, g) => s + groupPlan(g, ym), 0));
-const monthRecords = ym => state.records.filter(r => r.date.slice(0, 7) === ym);
-const monthSpent = ym => round2(monthRecords(ym).reduce((s, r) => s + r.amount, 0));
-const daysLeft = ym => {
-  const t = todayStr().slice(0, 7);
-  if (ym < t) return 0;
-  if (ym > t) return daysInMonth(ym);
-  return daysInMonth(ym) - new Date().getDate() + 1;
-};
-function cycleDesc(it){
-  const t = Number(it.times) || 1;
-  const a = '¥' + money(it.amount);
-  return CYCLE_LABEL[it.cycle] + ' ' + (t > 1 ? t + ' 次 × ' + a : a);
-}
-function previewText(cycle, times, amount, ym){
-  const days = daysInMonth(ym);
-  const t = Math.max(1, Number(times) || 1);
-  const a = Number(amount) || 0;
-  const total = round2(a * t * periodsIn(ym, cycle));
-  const per = t > 1 ? t + ' 次 × ¥' + money(a) : '¥' + money(a);
-  let formula;
-  if (cycle === 'day') formula = '本月 ' + days + ' 天';
-  else if (cycle === 'week') formula = '本月约 ' + round2(days / 7) + ' 周';
-  else formula = '按月固定';
-  return CYCLE_LABEL[cycle] + ' ' + per + ' → ' + formula + '，预计 <b>¥' + money(total) + '</b>';
-}
-
-/* =========================================================
-   课程表
-   ========================================================= */
 const SEMESTER_START = new Date(2026, 8, 7);   // 2026-09-07 = 第 1 周周一
 const WEEKS_TOTAL = 20;
+
 const SLOTS = [
-  ['1', '08:20', '10:00'], ['2', '10:15', '11:55'], ['3', '14:10', '15:50'],
-  ['4', '16:05', '17:45'], ['5', '19:00', '20:40']
+  ['1', '08:20', '10:00'],
+  ['2', '10:15', '11:55'],
+  ['3', '14:10', '15:50'],
+  ['4', '16:05', '17:45'],
+  ['5', '19:00', '20:40']
 ];
 const DAY_NAMES = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+const CN_NUM = '一二三四五';
 
-function W(from, to){ const a = []; for (let i = from; i <= to; i++) a.push(i); return a; }
+const SEC = slot => ((slot - 1) * 2 + 1) + '-' + (slot * 2) + '节';
+const TIME = slot => SLOTS[slot - 1][1] + '-' + SLOTS[slot - 1][2];
+
+function W(a, b){ const r = []; for (let i = a; i <= b; i++) r.push(i); return r; }
 const C = (name, code, room, teacher, day, slot, weeks, weeksStr, kind) =>
   ({ name, code, room, teacher, day, slot, weeks, weeksStr, kind: kind || 0 });
 
 const COURSES = [
-  // 原有课程
   C('数字逻辑电路', '02003011-03', '教B-107', '谭雪琴', 2, 1, [1,2,3,4,6,7,8,9,10,11,12,13,14,15], '1-4,6-15周'),
   C('工程高等数学1', '03238021-09', '教B-303', '吴清太', 3, 1, [1,2,3,4,6,7,8,9,10,11,12,13,14], '1-4,6-14周'),
   C('C程序设计与应用', '02345011-04', '教B-406', '荣百川', 5, 1, [1,2,5,6,7,8,9,10,11,12,13], '1-2,5-13周'),
@@ -607,725 +268,172 @@ const COURSES = [
   C('模拟电子线路', '02002011-02', '教B-107', '陈姝君', 4, 3, [1,2,3,5,6,7,8,9,10,11,12,13,14,15], '1-3,5-15周'),
   C('模拟电子线路', '02002011-02', '教B-107', '陈姝君', 1, 4, [1,2,3,4,6,7,8,9,10,11,12,13,14,15], '1-4,6-15周'),
   C('中国近现代史纲要', '05002021-18', '实训楼-203', '王利娟', 5, 4, [1,2,5,6,7,8,9,10,11], '1-2,5-11周'),
-  // 补充 1：数电硬件实验（教室 / 老师通知里没写）
+  // 补充：数电硬件实验（教室 / 老师通知里没写，显示待定）
   C('数电硬件实验', '', '待定', '', 4, 2, W(6, 17), '6-17周', 1),
   C('数电硬件实验', '', '待定', '', 5, 2, W(6, 17), '6-17周', 1),
   C('数电硬件实验', '', '待定', '', 5, 5, W(6, 10), '6-10周', 1),
-  // 补充 2：C程序设计实验（机房 教C-215）
+  // 补充：C程序设计与应用 实验（学校机房 教C-215）
   C('C程序设计实验', '02345011-04', '教C-215', '', 1, 2, W(6, 14), '6-14周', 1),
-  C('C程序设计实验', '02345011-04', '教C-215', '', 1, 1, W(12, 14), '12-14周', 1),
+  C('C程序设计实验', '02345011-04', '教C-215', '', 1, 1, W(12, 14), '12-14周', 1)
 ];
 
-/* 哪些课时间重叠（只要同一天同一大节、周次有交集） */
-(function markConflicts(){
-  for (let i = 0; i < COURSES.length; i++){
-    for (let j = i + 1; j < COURSES.length; j++){
-      const a = COURSES[i], b = COURSES[j];
-      if (a.day !== b.day || a.slot !== b.slot) continue;
-      if (a.name === b.name) continue;
-      if (!a.weeks.some(w => b.weeks.indexOf(w) >= 0)) continue;
-      a.conflictWith = a.conflictWith || []; b.conflictWith = b.conflictWith || [];
-      a.conflictWith.push(b); b.conflictWith.push(a);
-    }
+/* 标记时间重叠（同一天同一大节 + 周次有交集） */
+for (let i = 0; i < COURSES.length; i++){
+  for (let j = i + 1; j < COURSES.length; j++){
+    const a = COURSES[i], b = COURSES[j];
+    if (a.day !== b.day || a.slot !== b.slot) continue;
+    if (a.name === b.name) continue;
+    if (!a.weeks.some(w => b.weeks.indexOf(w) >= 0)) continue;
+    (a.conflictWith = a.conflictWith || []).push(b);
+    (b.conflictWith = b.conflictWith || []).push(a);
   }
-})();
+}
 
-const coursesAt = (day, slot, week) =>
-  COURSES.filter(c => c.day === day && c.slot === slot && c.weeks.indexOf(week) >= 0);
+const coursesAt = (day, slot, wk) =>
+  COURSES.filter(c => c.day === day && c.slot === slot && c.weeks.indexOf(wk) >= 0);
 
 function currentWeek(){
-  const now = new Date();
-  const a = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const n = new Date();
+  const a = new Date(n.getFullYear(), n.getMonth(), n.getDate());
   const days = Math.round((a - SEMESTER_START) / 86400000);
   if (days < 0) return 1;
   return Math.max(1, Math.min(WEEKS_TOTAL, Math.floor(days / 7) + 1));
 }
-function todayDay(){
-  const d = new Date().getDay();
-  return d === 0 ? 7 : d;
-}
-function dateLabel(week, day){
+function todayDay(){ const d = new Date().getDay(); return d === 0 ? 7 : d; }
+function dateOf(wk, day){
   const d = new Date(SEMESTER_START.getFullYear(), SEMESTER_START.getMonth(), SEMESTER_START.getDate());
-  d.setDate(d.getDate() + (week - 1) * 7 + (day - 1));
+  d.setDate(d.getDate() + (wk - 1) * 7 + (day - 1));
   return (d.getMonth() + 1) + '/' + d.getDate();
 }
-const slotSections = slot => ((slot - 1) * 2 + 1) + '-' + (slot * 2) + '节';
-const slotTime = slot => SLOTS[slot - 1][1] + '-' + SLOTS[slot - 1][2];
-const weekLabel = w => '第 ' + w + ' 周';
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 /* ---------- 主题 ---------- */
+const KEY_THEME = 'kcb.theme';
 function applyTheme(){
-  const t = state.theme || 'auto';
-  const dark = t === 'dark' || (t === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  let t = 'auto';
+  try { t = localStorage.getItem(KEY_THEME) || 'auto'; } catch (e) {}
+  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  const b = document.getElementById('btn-theme');
+  if (b) b.textContent = dark ? '☀' : '☾';
 }
-try{
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if ((state.theme || 'auto') === 'auto'){ applyTheme(); render(); }
-  });
-}catch(e){}
-
 const isDark = () => document.documentElement.dataset.theme === 'dark';
 
-/* =========================================================
-   渲染
-   ========================================================= */
-function renderTop(){
-  const ym = ui.month;
-  const days = daysInMonth(ym);
-  const dl = daysLeft(ym);
-  const isCur = ym === currentYM();
+/* ---------- 渲染 ---------- */
+let week = currentWeek();
 
-  $('#top').innerHTML =
-  '<div class="topbar">' +
-    '<button class="mnav" data-act="prev" aria-label="上个月">‹</button>' +
-    '<div class="mlabel">' + monthLabel(ym) + '<span>' + days + ' 天 · 已过 ' + (days - dl) + ' 天</span></div>' +
-    '<button class="mnav" data-act="next" aria-label="下个月">›</button>' +
-    (isCur ? '' : '<button class="tbtn" data-act="cur">本月</button>') +
-    '<button class="tbtn" data-act="theme" aria-label="深浅色">' + (isDark() ? '☀' : '☾') + '</button>' +
-    '<button class="tbtn" data-act="export">导出</button>' +
-    '<button class="tbtn" data-act="import">导入</button>' +
-  '</div>';
-}
-
-function renderHero(){
-  const ym = ui.month;
-  const plan = monthPlan(ym);
-  const md = monthData(ym);
-  const hasAllow = typeof md.allowance === 'number' && md.allowance > 0;
-  const base = hasAllow ? md.allowance : plan;
-  const spent = monthSpent(ym);
-  const free = hasAllow ? round2(base - plan - spent) : 0;
-  const over = hasAllow && free < -0.004;
-  const pct = base > 0 ? Math.min(100, (hasAllow ? plan + spent : spent) / base * 100) : 0;
-
-  const pill = '<button class="hero-pill" data-act="allow">' +
-    (hasAllow ? '✎ 修改' : '＋ 设置') + '</button>';
-
-  const freeLine = hasAllow
-    ? '<div class="hero-free"><span>' + (over ? '已超支' : '剩余可支配') + '</span>' +
-      '<b>¥' + money(over ? -free : free) + '</b></div>'
-    : '<div class="hero-free"><span>还没设可用金额，点右上角设置</span></div>';
-
-  return '<div class="hero">' +
-    '<div class="hero-top"><span>本月可用</span>' + pill + '</div>' +
-    '<div class="hero-amount"><small>¥</small>' + money(base) + '</div>' +
-    freeLine +
-    '<div class="hero-bar' + (over ? ' over' : '') + '"><i style="width:' + pct + '%"></i></div>' +
-  '</div>';
-}
-
-function renderBody(){
-  const ym = ui.month;
-  const plan = monthPlan(ym);
-  const spent = monthSpent(ym);
-
-  let html = '<div class="sum3">' +
-    tabCell('已规划', '¥' + money(plan), 'plan') +
-    tabCell('已支配', '¥' + money(spent), 'ledger') +
-    tabCell('课程表', weekLabel(currentWeek()), 'schedule') +
-  '</div>';
-
-  html += '<div style="margin-top:10px"></div>';
-
-  if (ui.view === 'ledger') html += viewLedger();
-  else if (ui.view === 'schedule') html += viewSchedule();
-  else html += viewPlan();
-
-  return html;
-}
-
-function tabCell(label, value, target){
-  const on = ui.view === target;
-  return '<button class="tabc' + (on ? ' on' : '') + '" data-act="view" data-v="' + target + '">' +
-    '<span class="l"><span>' + label + '</span><span class="arw">' + (on ? '▴' : '▾') + '</span></span>' +
-    '<b>' + esc(value) + '</b>' +
-  '</button>';
-}
-
-/* ---------- 规划视图 ---------- */
-function viewPlan(){
-  const ym = ui.month;
-  const groups = monthGroups(ym);
-  if (!groups.length){
-    return emptyState('🍚', monthLabel(ym) + '还没有预算',
-      '先建一个分类，比如「饮食」，<br>再往里加「牛奶」「鸡蛋」这样的项目。',
-      '＋ 添加分类', 'group-new');
-  }
-
-  const totalPlan = monthPlan(ym);
-  let html = '';
-  for (const g of groups){
-    const gp = groupPlan(g, ym);
-    const share = totalPlan > 0 ? Math.round(gp / totalPlan * 100) : 0;
-    html += '<div class="grp">' +
-      '<div class="grp-head" data-act="group-edit" data-id="' + g.id + '">' +
-        '<div class="ico">' + esc(g.emoji || '🧾') + '</div>' +
-        '<div class="gb">' +
-          '<div class="row1"><b>' + esc(g.name) + '</b>' +
-            '<span class="plan">¥' + money(gp) + '<em>/月</em></span></div>' +
-          '<div class="row2">' + g.items.length + ' 个项目 · 占本月预算 ' + share + '%</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="grp-items">' +
-        (g.items.length
-          ? g.items.map(it => itemRow(g, it, totalPlan)).join('')
-          : '<div class="gempty">这个分类下还没有项目</div>') +
-        '<div class="gadd" data-act="item-new" data-gid="' + g.id + '">＋ 加一项</div>' +
-      '</div>' +
-    '</div>';
-  }
-  html += '<button class="add-row" data-act="group-new">＋ 添加分类</button>';
-  return html;
-}
-
-function itemRow(g, it, totalPlan){
-  const own = itemPlan(it, ui.month);
-  const share = totalPlan > 0 ? Math.round(own / totalPlan * 100) : 0;
-  const shareTxt = totalPlan > 0 ? ' · 占本月预算 ' + (share === 0 ? '&lt;1' : share) + '%' : '';
-  return '<div class="gitem" data-act="item-edit" data-id="' + it.id + '" data-gid="' + g.id + '">' +
-    '<div class="gi-main"><b>' + esc(it.name) + '</b>' +
-      '<span>' + cycleDesc(it) + shareTxt + '</span></div>' +
-    '<div class="gi-amt">¥' + money(own) + '</div>' +
-  '</div>';
-}
-
-/* ---------- 流水视图 ---------- */
-function viewLedger(){
-  const ym = ui.month;
-  const recs = monthRecords(ym).slice().sort((a, b) =>
-    a.date < b.date ? 1 : a.date > b.date ? -1 : (b.createdAt || 0) - (a.createdAt || 0));
-
-  if (!recs.length){
-    return emptyState('🧾', monthLabel(ym) + '还没有支出',
-      '每记一笔就出现在这里，<br>按日期分组，点一条可以改或删。',
-      '＋ 记一笔', 'record-new');
-  }
-
-  let html = '';
-  let cur = null;
-  for (const r of recs){
-    if (r.date !== cur){
-      if (cur) html += '</div>';
-      cur = r.date;
-      let sum = 0;
-      for (const x of recs) if (x.date === r.date) sum += x.amount;
-      html += '<div class="daygroup">' +
-        '<div class="dayhead"><b>' + dayLabel(r.date) + '</b><span>¥' + money(sum) + '</span></div>';
-    }
-    html += '<div class="rec" data-act="record-edit" data-id="' + r.id + '">' +
-      '<div class="r-main' + (r.note ? '' : ' dim') + '">' + esc(r.note || '支出') + '</div>' +
-      '<div class="r-amt">-¥' + money(r.amount) + '</div>' +
-    '</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
-/* ---------- 课程表视图 ---------- */
-function viewSchedule(){
-  const wk = ui.week == null ? currentWeek() : ui.week;
+function render(){
   const thisWeek = currentWeek();
   const today = todayDay();
 
-  let html = '<div class="weekbar">' +
-    '<button class="mnav" data-act="week-prev" aria-label="上一周">‹</button>' +
-    '<div class="mlabel" style="flex:1">' + weekLabel(wk) +
-      '<span>' + (wk === thisWeek ? '就是本周' : '周 ' + dateLabel(wk, 1) + ' ~ ' + dateLabel(wk, 5)) + '</span>' +
-    '</div>' +
-    '<button class="mnav" data-act="week-next" aria-label="下一周">›</button>' +
-    (wk === thisWeek ? '' : '<button class="tbtn" data-act="week-cur">本周</button>') +
-  '</div>';
+  document.getElementById('wk-label').textContent = '第 ' + week + ' 周';
+  document.getElementById('wk-range').textContent =
+    week === thisWeek ? '就是本周 · ' + dateOf(week, 1) + ' ~ ' + dateOf(week, 5)
+                      : dateOf(week, 1) + ' ~ ' + dateOf(week, 5);
+  document.getElementById('btn-cur').hidden = (week === thisWeek);
 
-  html += '<div class="sched">';
-  // 表头
-  html += '<div class="sg-hd"></div>';
+  let html = '<div class="hd"></div>';
   for (let d = 1; d <= 5; d++){
-    html += '<div class="sg-hd' + (d === today ? ' today' : '') + '">' +
-      '<b>周' + '一二三四五'.charAt(d - 1) + '</b><span>' + dateLabel(wk, d) + '</span></div>';
+    html += '<div class="hd' + (d === today ? ' today' : '') + '">' +
+      '<b>周' + CN_NUM.charAt(d - 1) + '</b><span>' + dateOf(week, d) + '</span></div>';
   }
-  // 5 大节
-  let anyClash = false;
+
+  let clash = false;
   for (let s = 1; s <= 5; s++){
-    html += '<div class="sg-time"><b>' + SLOTS[s - 1][0] + '</b><span>' + SLOTS[s - 1][1] + '</span></div>';
+    html += '<div class="tm"><b>' + SLOTS[s - 1][0] + '</b><span>' + SLOTS[s - 1][1] + '</span></div>';
     for (let d = 1; d <= 5; d++){
-      const list = coursesAt(d, s, wk);
-      const clash = list.length > 1;
-      if (clash) anyClash = true;
-      html += '<div class="sg-cell' + (d === today ? ' today' : '') + '">';
+      const list = coursesAt(d, s, week);
+      const hasClash = list.length > 1;
+      if (hasClash) clash = true;
+      html += '<div class="cell' + (d === today ? ' today' : '') + '">';
       for (const c of list){
-        html += '<div class="sg-c' + (c.kind === 1 ? ' lab' : '') + (clash ? ' clash' : '') + '"' +
-          ' data-act="course" data-name="' + esc(c.name) + '" data-day="' + c.day + '" data-slot="' + c.slot + '">' +
+        html += '<div class="c' + (c.kind === 1 ? ' lab' : '') + (hasClash ? ' clash' : '') + '"' +
+          ' data-i="' + COURSES.indexOf(c) + '">' +
           '<b>' + esc(c.name) + '</b>' +
-          (c.room && c.room !== '待定' && !clash ? '<span>' + esc(c.room) + '</span>' : '') +
+          (c.room && c.room !== '待定' && !hasClash ? '<span>' + esc(c.room) + '</span>' : '') +
         '</div>';
       }
       html += '</div>';
     }
   }
-  html += '</div>';
-
-  html += '<p class="sched-tip">' + (anyClash
-    ? '红框 = 这一格有两节课撞在一起，点开任意一节看详情'
-    : '点任意一节课看详情（教室 / 教师 / 周次）') + '</p>';
-  return html;
+  document.getElementById('sched').innerHTML = html;
+  document.getElementById('tip').textContent = clash
+    ? '红框 = 这一格有两节课撞在一起，点开看详情'
+    : '点任意一节课看上课地点和老师';
 }
 
-function emptyState(emoji, title, desc, btn, act){
-  return '<div class="empty-state">' +
-    '<div class="e">' + emoji + '</div>' +
-    '<h3>' + title + '</h3>' +
-    '<p>' + desc + '</p>' +
-    '<button class="btn primary" data-act="' + act + '">' + btn + '</button>' +
-  '</div>';
-}
-
-function render(){
-  renderTop();
-  const v = $('#view');
-  v.innerHTML = renderHero() + renderBody();
-  // 记一笔按钮始终可用
-  $('#fab').style.display = 'grid';
-}
-
-/* =========================================================
-   弹层
-   ========================================================= */
-let sheetMode = null;
-
-function openSheet(html, mode){
-  const s = $('#sheet');
+/* ---------- 弹层 ---------- */
+function openSheet(html){
+  const s = document.getElementById('sheet');
   s.innerHTML = html;
-  sheetMode = mode || null;
-  $('#mask').classList.add('on');
+  document.getElementById('mask').classList.add('on');
   requestAnimationFrame(() => s.classList.add('on'));
 }
 function closeSheet(){
-  $('#sheet').classList.remove('on');
-  $('#mask').classList.remove('on');
-  sheetMode = null;
+  document.getElementById('sheet').classList.remove('on');
+  document.getElementById('mask').classList.remove('on');
 }
 
-const sheetHead = (title) =>
-  '<div class="sheet-head"><h3>' + esc(title) + '</h3><button class="x" data-act="close">✕</button></div>';
-
-/* ---------- 分类 ---------- */
-function openGroupSheet(g){
-  const editing = !!g;
-  const d = g || { name: '', emoji: '🍚' };
-  openSheet(
-    sheetHead(editing ? '编辑分类' : '添加分类') +
-    '<p class="sheet-note">一级分类用来给预算分组，比如「饮食」「交通」「居住」。<br>具体买什么，放进分类里当二级项目。</p>' +
-    '<label class="field"><span>分类名称</span><input id="g-name" placeholder="比如：饮食、交通、居住" value="' + esc(d.name) + '" maxlength="16"></label>' +
-    '<div class="field"><span>图标</span>' +
-      '<div class="chips" id="g-emoji">' + EMOJIS.map(e =>
-        '<button class="chip emo' + (d.emoji === e ? ' on' : '') + '" data-act="pick-emoji" data-v="' + e + '">' + e + '</button>').join('') + '</div>' +
-      '<input id="g-emoji-custom" placeholder="也可以直接输入任意表情" style="margin-top:10px;width:100%;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:var(--surface-2);color:var(--text);font-size:15px;font-family:inherit;outline:none">' +
-    '</div>' +
-    '<div class="preview" id="g-preview"></div>' +
-    '<button class="btn primary" data-act="group-save" data-id="' + (editing ? g.id : '') + '">' + (editing ? '保存修改' : '添加分类') + '</button>' +
-    (editing ? '<button class="btn danger" data-act="group-del" data-id="' + g.id + '">删除这个分类</button>' : ''),
-    'group'
-  );
-  const s = $('#sheet');
-  s.dataset.emoji = d.emoji;
-  refreshGroupPreview();
-}
-
-function refreshGroupPreview(){
-  const s = $('#sheet'); if (!s) return;
-  const n = ($('#g-name') || {}).value || '';
-  const el = $('#g-preview');
-  if (el) el.innerHTML = (s.dataset.emoji || '🧾') + '　' + esc(n.trim() || '分类名称');
-}
-
-function openItemSheet(group, it){
-  const editing = !!it;
-  const groups = monthGroups(ui.month);
-  const cur = group ? group.id : (groups[0] ? groups[0].id : '');
-  const d = it || { name: '', cycle: 'day', times: 1, amount: '' };
-
-  openSheet(
-    sheetHead(editing ? '编辑项目' : '添加项目') +
-    '<p class="sheet-note">只改 ' + monthLabel(ui.month) + ' 的预算，其他月份不受影响。</p>' +
-    '<label class="field"><span>名称</span><input id="i-name" placeholder="比如：牛奶、鸡蛋、午餐" value="' + esc(d.name) + '" maxlength="16"></label>' +
-    '<div class="field"><span>放在哪个分类</span><div class="chips" id="i-group">' +
-      groups.map(g => '<button class="chip' + (g.id === cur ? ' on' : '') + '" data-act="pick-group" data-id="' + g.id + '">' +
-        esc(g.emoji || '🧾') + ' ' + esc(g.name) + '</button>').join('') +
-    '</div></div>' +
-    '<div class="field"><span>多久花一次</span><div class="seg" id="i-cycle">' +
-      CYCLES.map(c => '<button data-act="pick-cycle" data-v="' + c + '"' + (d.cycle === c ? ' class="on"' : '') + '>' + CYCLE_LABEL[c] + '</button>').join('') +
-    '</div></div>' +
-    '<div class="field"><span>频次与金额</span><div class="inline">' +
-      '<div class="mini"><label>次数</label><input id="i-times" type="number" min="1" step="1" inputmode="numeric" value="' + (d.times || 1) + '"></div>' +
-      '<div class="mini grow"><label>每次金额（元）</label><input id="i-amount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" value="' + (d.amount === '' ? '' : d.amount) + '"></div>' +
-    '</div></div>' +
-    '<div class="preview" id="i-preview"></div>' +
-    '<button class="btn primary" data-act="item-save" data-id="' + (editing ? it.id : '') + '">' + (editing ? '保存修改' : '添加') + '</button>' +
-    (editing ? '<button class="btn danger" data-act="item-del" data-id="' + it.id + '">删除这个项目</button>' : ''),
-    'item'
-  );
-  const s = $('#sheet');
-  s.dataset.cycle = d.cycle;
-  s.dataset.groupId = cur;
-  refreshItemPreview();
-}
-
-function refreshItemPreview(){
-  const el = $('#i-preview'); if (!el) return;
-  const s = $('#sheet');
-  const t = Math.max(1, parseInt(($('#i-times') || {}).value, 10) || 1);
-  const a = Number(($('#i-amount') || {}).value) || 0;
-  el.innerHTML = previewText(s.dataset.cycle || 'day', t, a, ui.month);
-}
-
-/* ---------- 记一笔 ---------- */
-function openRecordSheet(rec, presetDate){
-  const editing = !!rec;
-  const date = rec ? rec.date : (presetDate || defaultDateFor(ui.month));
-  const same = state.records.filter(r => r.date === date && (!rec || r.id !== rec.id));
-  const sameSum = round2(same.reduce((s, r) => s + r.amount, 0));
-
-  openSheet(
-    sheetHead(editing ? '修改这一笔' : '记一笔支出') +
-    (same.length ? '<p class="sheet-note">这一天已经记了 ' + same.length + ' 笔，共 ¥' + money(sameSum) + '</p>' : '') +
-    '<label class="field"><span>日期</span><input id="r-date" type="date" value="' + date + '"></label>' +
-    '<div class="field"><span>金额（元）</span><div class="amt-in"><i>¥</i>' +
-      '<input id="r-amount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" value="' + (rec ? rec.amount : '') + '"></div></div>' +
-    '<label class="field"><span>备注</span><input id="r-note" placeholder="选填，比如：楼下超市买菜" value="' + esc(rec ? rec.note : '') + '" maxlength="40"></label>' +
-    '<button class="btn primary" data-act="record-save" data-id="' + (editing ? rec.id : '') + '">' + (editing ? '保存修改' : '记下来') + '</button>' +
-    (editing ? '<button class="btn danger" data-act="record-del" data-id="' + rec.id + '">删除这条记录</button>' : ''),
-    'record'
-  );
-}
-
-/* ---------- 本月可用 ---------- */
-function openAllowSheet(){
-  const md = monthData(ui.month);
-  const cur = md.allowance;
-  openSheet(
-    sheetHead('本月可用金额') +
-    '<p class="sheet-note">' + monthLabel(ui.month) + ' 一共可以花多少（比如这个月的生活费）。<br>' +
-      '填了之后首页会显示「剩余可支配」，每记一笔就相应减少。</p>' +
-    '<div class="field"><span>金额（元）</span><div class="amt-in"><i>¥</i>' +
-      '<input id="a-amount" type="number" min="0" step="0.01" inputmode="decimal" placeholder="比如 8000" value="' + (cur == null ? '' : cur) + '"></div></div>' +
-    '<div class="preview" id="a-preview"></div>' +
-    '<button class="btn primary" data-act="allow-save">保存</button>' +
-    (cur != null ? '<button class="btn danger" data-act="allow-clear">不用总额度，只按项目合计</button>' : ''),
-    'allow'
-  );
-  refreshAllowPreview();
-}
-function refreshAllowPreview(){
-  const el = $('#a-preview'); if (!el) return;
-  const v = Number(($('#a-amount') || {}).value) || 0;
-  const plan = monthPlan(ui.month), spent = monthSpent(ui.month);
-  if (v <= 0){ el.innerHTML = '本月各项预算合计 ¥' + money(plan) + ' · 已花 ¥' + money(spent); return; }
-  const left = round2(v - plan - spent);
-  el.innerHTML = '本月可用 ¥' + money(v) + ' − 已规划 ¥' + money(plan) + ' − 已支配 ¥' + money(spent) +
-    ' → 剩余可支配 <b>¥' + money(left) + '</b>';
-}
-
-/* ---------- 课程详情 ---------- */
-function openCourseSheet(c){
-  const wk = ui.week == null ? currentWeek() : ui.week;
-  const has = c.weeks.indexOf(wk) >= 0;
+function openCourse(c){
+  const has = c.weeks.indexOf(week) >= 0;
   const lab = c.kind === 1;
-
-  let html = sheetHead(c.name);
-  html += '<div><span class="kindtag ' + (lab ? 'lab' : 'theory') + '">' + (lab ? '实验课' : '理论课') + '</span></div>';
-  html += '<div style="margin-top:12px;font-size:13.5px;font-weight:' + (has ? '700' : '500') +
-    ';color:' + (has ? 'var(--text)' : 'var(--text-3)') + '">' +
-    weekLabel(wk) + (has ? ' 有课' : ' 没有这节课') + '</div>';
-  html += '<div class="cinfo">' +
-    '<div class="r"><i>时间</i><b>' + DAY_NAMES[c.day] + ' ' + slotSections(c.slot) + '</b></div>' +
-    '<div class="r"><i>时段</i><b>' + slotTime(c.slot) + '</b></div>' +
-    '<div class="r"><i>周次</i><b>' + esc(c.weeksStr) + '</b></div>' +
-    '<div class="r"><i>教师</i><b>' + (c.teacher ? esc(c.teacher) : '—') + '</b></div>' +
-    '<div class="r"><i>教室</i><b>' + (c.room ? esc(c.room) : '—') + '</b></div>' +
-    (c.code ? '<div class="r"><i>课程编号</i><b>' + esc(c.code) + '</b></div>' : '') +
-  '</div>';
+  let html = '<div class="sheet-head"><h3>' + esc(c.name) + '</h3>' +
+    '<button class="x" data-act="close">✕</button></div>' +
+    '<span class="kindtag ' + (lab ? 'lab' : 'theory') + '">' + (lab ? '实验课' : '理论课') + '</span>' +
+    '<div class="when ' + (has ? 'yes' : 'no') + '">第 ' + week + ' 周' + (has ? ' 有课' : ' 没有这节课') + '</div>' +
+    '<div class="info">' +
+      '<div class="r"><i>时间</i><b>' + DAY_NAMES[c.day] + ' ' + SEC(c.slot) + '</b></div>' +
+      '<div class="r"><i>时段</i><b>' + TIME(c.slot) + '</b></div>' +
+      '<div class="r"><i>周次</i><b>' + esc(c.weeksStr) + '</b></div>' +
+      '<div class="r"><i>教师</i><b>' + (c.teacher ? esc(c.teacher) : '—') + '</b></div>' +
+      '<div class="r"><i>教室</i><b>' + (c.room ? esc(c.room) : '—') + '</b></div>' +
+      (c.code ? '<div class="r"><i>课程编号</i><b>' + esc(c.code) + '</b></div>' : '') +
+    '</div>';
   if (c.conflictWith && c.conflictWith.length){
-    const names = c.conflictWith.map(x => x.name).filter((v, i, a) => a.indexOf(v) === i).join('、');
-    html += '<div class="warnbox">⚠ 这节课和「' + esc(names) + '」时间重叠。<br>' +
+    const names = [...new Set(c.conflictWith.map(x => x.name))].join('、');
+    html += '<div class="warn">⚠ 这节课和「' + esc(names) + '」时间重叠。<br>' +
       '两门课都在这个时段，具体怎么上请跟老师确认。</div>';
   }
-  openSheet(html, 'course');
+  openSheet(html);
 }
 
-/* =========================================================
-   动作
-   ========================================================= */
-function findGroup(id){
-  return monthGroups(ui.month).find(g => g.id === id) ||
-    Object.values(state.months).flatMap(m => m.groups).find(g => g.id === id) || null;
-}
-function findItemWithGroup(id){
-  for (const g of monthGroups(ui.month)){
-    const it = g.items.find(x => x.id === id);
-    if (it) return { group: g, item: it };
-  }
-  return null;
-}
-
-function saveGroup(id){
-  const name = (($('#g-name') || {}).value || '').trim();
-  if (!name){ toast('给这个分类起个名字'); return; }
-  const emoji = $('#sheet').dataset.emoji || '🧾';
-  const m = ensureMonth(ui.month);
-  if (id){
-    const g = m.groups.find(x => x.id === id);
-    if (g){ g.name = name; g.emoji = emoji; }
-  }else{
-    m.groups.push({ id: uid(), name, emoji, items: [] });
-  }
-  saveState(); closeSheet(); render();
-  toast(id ? '已保存' : '已添加分类「' + name + '」');
-}
-
-function saveItem(id){
-  const name = (($('#i-name') || {}).value || '').trim();
-  if (!name){ toast('给它起个名字'); return; }
-  const amount = Number(($('#i-amount') || {}).value) || 0;
-  if (amount <= 0){ toast('填一下每次的金额'); return; }
-  const s = $('#sheet');
-  const cycle = s.dataset.cycle || 'day';
-  const times = Math.max(1, parseInt(($('#i-times') || {}).value, 10) || 1);
-  const gid = s.dataset.groupId;
-
-  const m = ensureMonth(ui.month);
-  if (!m.groups.length){ toast('先建一个分类'); return; }
-  let target = m.groups.find(g => g.id === gid) || m.groups[0];
-
-  const payload = { name, cycle, times, amount };
-  if (id){
-    let from = null, item = null;
-    for (const g of m.groups){
-      const x = g.items.find(i => i.id === id);
-      if (x){ from = g; item = x; break; }
-    }
-    if (!item) return;
-    Object.assign(item, payload);
-    if (from !== target){ from.items = from.items.filter(i => i.id !== id); target.items.push(item); }
-  }else{
-    target.items.push(Object.assign({ id: uid() }, payload));
-  }
-  saveState(); closeSheet(); render();
-  toast(id ? '已保存（只改了 ' + monthLabel(ui.month) + '）'
-           : '已添加，本月预计 ¥' + money(amount * times * periodsIn(ui.month, cycle)));
-}
-
-function saveRecord(id){
-  const date = ($('#r-date') || {}).value || defaultDateFor(ui.month);
-  const amount = round2(Number(($('#r-amount') || {}).value));
-  if (!(amount > 0)){ toast('请输入金额'); return; }
-  const note = (($('#r-note') || {}).value || '').trim();
-  if (id){
-    const r = state.records.find(x => x.id === id);
-    if (r) Object.assign(r, { date, amount, note });
-  }else{
-    state.records.push({ id: uid(), date, amount, note, createdAt: Date.now() });
-  }
-  saveState(); closeSheet(); render(); toast(id ? '已保存' : '记好了 ✓');
-}
-
-function saveAllow(){
-  const v = round2(Number(($('#a-amount') || {}).value) || 0);
-  if (!(v > 0)){ toast('填一个大于 0 的金额'); return; }
-  ensureMonth(ui.month).allowance = v;
-  saveState(); closeSheet(); render(); toast('已设置：本月可用 ¥' + money(v));
-}
-
-/* ---------- 导入导出 ---------- */
-function exportJSON(){
-  const payload = { app: 'budgetbook', version: 3, exportedAt: new Date().toISOString(),
-    months: state.months, records: state.records };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = '预算本-' + todayStr() + '.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast('已导出备份文件');
-}
-
-function importJSON(file){
-  const fr = new FileReader();
-  fr.onload = function(){
-    try{
-      const d = JSON.parse(fr.result);
-      if (!d || !Array.isArray(d.records)) throw new Error('bad');
-      let months = null;
-      if (d.months && typeof d.months === 'object') months = d.months;
-      else if (Array.isArray(d.items)){ months = {}; months[currentYM()] = { allowance: null, items: d.items }; }
-      if (!months) throw new Error('bad');
-      if (!confirm('导入会覆盖当前全部数据（' + Object.keys(state.months).length + ' 个月的预算、' +
-        state.records.length + ' 条记录），继续？')) return;
-
-      // 直接复用 loadState 的规整逻辑：先塞进 localStorage 再读回来
-      const tmp = { months, records: d.records, theme: state.theme };
-      const backup = localStorage.getItem(KEY);
-      localStorage.setItem(KEY, JSON.stringify(tmp));
-      loadState();
-      if (backup == null) localStorage.removeItem(KEY); else localStorage.setItem(KEY, backup);
-      saveState();
-      render();
-      toast('导入成功');
-    }catch(e){ toast('这个文件读不出来，请选择本应用导出的 JSON'); }
-  };
-  fr.readAsText(file);
-}
-
-/* ---------- toast ---------- */
-let toastTimer = null;
-function toast(msg){
-  const el = $('#toast');
-  el.textContent = msg;
-  el.classList.add('on');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('on'), 1900);
-}
-
-/* =========================================================
-   事件
-   ========================================================= */
-document.addEventListener('click', function(e){
-  const el = e.target.closest('[data-act]');
+/* ---------- 事件 ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act], [data-i]');
   if (!el) return;
-  const act = el.dataset.act;
-  const id = el.dataset.id || '';
 
-  switch (act){
-    case 'prev': ui.month = shiftMonth(ui.month, -1); render(); break;
-    case 'next': ui.month = shiftMonth(ui.month, 1); render(); break;
-    case 'cur':  ui.month = currentYM(); render(); break;
+  if (el.dataset.i != null){
+    const c = COURSES[Number(el.dataset.i)];
+    if (c) openCourse(c);
+    return;
+  }
+  switch (el.dataset.act){
+    case 'prev': week = Math.max(1, week - 1); render(); break;
+    case 'next': week = Math.min(WEEKS_TOTAL, week + 1); render(); break;
+    case 'cur':  week = currentWeek(); render(); break;
     case 'theme':
-      state.theme = isDark() ? 'light' : 'dark';
-      saveState(); applyTheme(); render(); break;
-    case 'export': exportJSON(); break;
-    case 'import': $('#file').click(); break;
-
-    case 'view': ui.view = el.dataset.v; render(); break;
-
-    case 'week-prev': ui.week = Math.max(1, (ui.week == null ? currentWeek() : ui.week) - 1); render(); break;
-    case 'week-next': ui.week = Math.min(WEEKS_TOTAL, (ui.week == null ? currentWeek() : ui.week) + 1); render(); break;
-    case 'week-cur':  ui.week = currentWeek(); render(); break;
-
-    case 'course': {
-      const c = COURSES.find(x => x.name === el.dataset.name &&
-        x.day === Number(el.dataset.day) && x.slot === Number(el.dataset.slot));
-      if (c) openCourseSheet(c);
-      break;
-    }
-
-    case 'group-new': openGroupSheet(null); break;
-    case 'group-edit': { const g = findGroup(id); if (g) openGroupSheet(g); break; }
-    case 'group-save': saveGroup(id); break;
-    case 'group-del': {
-      const g = findGroup(id); if (!g) break;
-      if (!confirm('删除分类「' + g.name + '」？' + (g.items.length ? '\n它下面的 ' + g.items.length + ' 个项目会一起删掉。' : ''))) break;
-      const m = ensureMonth(ui.month);
-      m.groups = m.groups.filter(x => x.id !== id);
-      saveState(); closeSheet(); render(); toast('已删除分类');
-      break;
-    }
-    case 'item-new':  openItemSheet(findGroup(el.dataset.gid), null); break;
-    case 'item-edit': { const hit = findItemWithGroup(id); if (hit) openItemSheet(hit.group, hit.item); break; }
-    case 'item-save': saveItem(id); break;
-    case 'item-del': {
-      if (!confirm('删除这个项目？')) break;
-      const m = ensureMonth(ui.month);
-      for (const g of m.groups) g.items = g.items.filter(x => x.id !== id);
-      saveState(); closeSheet(); render(); toast('已删除');
-      break;
-    }
-
-    case 'pick-emoji':
-      $('#sheet').dataset.emoji = el.dataset.v;
-      $$('#g-emoji .chip').forEach(c => c.classList.toggle('on', c.dataset.v === el.dataset.v));
-      { const cu = $('#g-emoji-custom'); if (cu) cu.value = ''; }
-      refreshGroupPreview();
-      break;
-    case 'pick-cycle':
-      $('#sheet').dataset.cycle = el.dataset.v;
-      $$('#i-cycle button').forEach(b => b.classList.toggle('on', b.dataset.v === el.dataset.v));
-      refreshItemPreview();
-      break;
-    case 'pick-group':
-      $('#sheet').dataset.groupId = id;
-      $$('#i-group .chip').forEach(c => c.classList.toggle('on', c.dataset.id === id));
-      break;
-
-    case 'record-new':  openRecordSheet(null); break;
-    case 'record-edit': { const r = state.records.find(x => x.id === id); if (r) openRecordSheet(r); break; }
-    case 'record-save': saveRecord(id); break;
-    case 'record-del':
-      if (confirm('删除这条记录？')){
-        state.records = state.records.filter(x => x.id !== id);
-        saveState(); closeSheet(); render(); toast('已删除');
-      }
-      break;
-
-    case 'allow':       openAllowSheet(); break;
-    case 'allow-save':  saveAllow(); break;
-    case 'allow-clear':
-      ensureMonth(ui.month).allowance = null;
-      saveState(); closeSheet(); render(); toast('已改为按项目合计');
-      break;
-
+      try { localStorage.setItem(KEY_THEME, isDark() ? 'light' : 'dark'); } catch (e) {}
+      applyTheme(); break;
     case 'close': closeSheet(); break;
   }
 });
 
-document.addEventListener('input', function(e){
-  const id = e.target.id;
-  if (id === 'i-amount' || id === 'i-times') refreshItemPreview();
-  if (id === 'a-amount') refreshAllowPreview();
-  if (id === 'g-name') refreshGroupPreview();
-  if (id === 'r-amount') e.target.dataset.touched = '1';
-});
-
-document.addEventListener('input', function(e){
-  if (e.target.id === 'g-emoji-custom'){
-    const v = e.target.value.trim();
-    if (v){
-      $('#sheet').dataset.emoji = v.slice(0, 2);
-      $$('#g-emoji .chip').forEach(c => c.classList.remove('on'));
-      refreshGroupPreview();
-    }
-  }
-});
-
-$('#mask').addEventListener('click', closeSheet);
+document.getElementById('mask').addEventListener('click', closeSheet);
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
-$('#fab').addEventListener('click', () => openRecordSheet(null));
-$('#file').addEventListener('change', function(e){
-  const f = e.target.files && e.target.files[0];
-  if (f) importJSON(f);
-  e.target.value = '';
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  let t = 'auto';
+  try { t = localStorage.getItem(KEY_THEME) || 'auto'; } catch (e) {}
+  if (t === 'auto') applyTheme();
 });
 
-/* =========================================================
-   启动
-   ========================================================= */
-loadState();
-ui.month = currentYM();
-ui.week = currentWeek();
+/* ---------- 启动 ---------- */
 applyTheme();
 render();
 
-/* 让 Safari 别在空间紧张时清掉账本数据 */
-if (navigator.storage && navigator.storage.persist){
-  navigator.storage.persist().catch(() => {});
-}
-
-/* 离线缓存：只有在 http/https 下、且不是 APK 内置页面时才注册 */
-const IN_APP = location.hostname === 'appassets.androidplatform.net';
-if (!IN_APP && 'serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
-  window.addEventListener('load', function(){
+/* 离线缓存：断网也能打开 */
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+  addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }

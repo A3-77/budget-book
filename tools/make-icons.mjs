@@ -132,16 +132,66 @@ function render(size, { maskable = false, glyphRatio = 0.60, radiusRatio = 0.225
   return encodePNG(size, size, rgba);
 }
 
-/* ---------- 输出 1：网页图标（根目录） ---------- */
+/* ---------- 课程表图标：渐变底 + 3×3 白色圆角格子 ---------- */
+function renderGrid(size, { maskable = false, radiusRatio = 0.225, cellRatio = 0.155, gapRatio = 0.033 } = {}) {
+  const rgba = Buffer.alloc(size * size * 4);
+  const outerR = maskable ? 0 : size * radiusRatio;
+  const SS = 3, inv = 1 / (SS * SS);
+
+  const cellPx = size * cellRatio;
+  const gapPx = size * gapRatio;
+  const span = cellPx * 3 + gapPx * 2;
+  const start = (size - span) / 2;
+  const cellR = cellPx * 0.3;
+
+  // 只在网格范围里逐格判断，省点计算
+  const inCells = (px, py) => {
+    if (px < start || py < start || px > start + span || py > start + span) return false;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        const cx = start + c * (cellPx + gapPx);
+        const cy = start + r * (cellPx + gapPx);
+        if (rrectSDF(px - cx, py - cy, cellPx, cellPx, cellR) <= 0) return true;
+      }
+    }
+    return false;
+  };
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      let inBg = 0, inCell = 0, sr = 0, sg = 0, sb = 0;
+      for (let sy = 0; sy < SS; sy++) {
+        for (let sx = 0; sx < SS; sx++) {
+          const px = x + (sx + 0.5) / SS, py = y + (sy + 0.5) / SS;
+          if (rrectSDF(px, py, size, size, outerR) <= 0) inBg++;
+          if (inCells(px, py)) inCell++;
+          const t = Math.min(1, Math.max(0, (px / size + py / size) / 2));
+          sr += C1[0] + (C2[0] - C1[0]) * t;
+          sg += C1[1] + (C2[1] - C1[1]) * t;
+          sb += C1[2] + (C2[2] - C1[2]) * t;
+        }
+      }
+      let R = sr * inv, G = sg * inv, B = sb * inv;
+      const ga = Math.min(1, inCell * inv);
+      R += (255 - R) * ga; G += (255 - G) * ga; B += (255 - B) * ga;
+      const o = (y * size + x) * 4;
+      rgba[o] = Math.round(R); rgba[o + 1] = Math.round(G); rgba[o + 2] = Math.round(B);
+      rgba[o + 3] = Math.round(Math.min(1, inBg * inv) * 255);
+    }
+  }
+  return encodePNG(size, size, rgba);
+}
+
+/* ---------- 输出 1：网页图标（根目录）—— 课程表 ---------- */
 const jobs = [
-  ['icon-192.png', 192, { glyphRatio: 0.60 }],
-  ['icon-512.png', 512, { glyphRatio: 0.60 }],
-  ['icon-maskable-512.png', 512, { maskable: true, glyphRatio: 0.46 }],
-  ['apple-touch-icon.png', 180, { radiusRatio: 0, glyphRatio: 0.62 }],  // iOS 自己会切圆角，这里不留边
-  ['favicon-32.png', 32, { radiusRatio: 0, glyphRatio: 0.66 }],
+  ['icon-192.png', 192, { radiusRatio: 0.225, cellRatio: 0.155 }],
+  ['icon-512.png', 512, { radiusRatio: 0.225, cellRatio: 0.155 }],
+  ['icon-maskable-512.png', 512, { maskable: true, cellRatio: 0.135 }],
+  ['apple-touch-icon.png', 180, { radiusRatio: 0, cellRatio: 0.16 }],   // iOS 自己切圆角
+  ['favicon-32.png', 32, { radiusRatio: 0, cellRatio: 0.23, gapRatio: 0.06 }],  // 小尺寸要粗一点
 ];
 for (const [name, size, opt] of jobs) {
-  const buf = render(size, opt);
+  const buf = renderGrid(size, opt);
   writeFileSync(name, buf);
   console.log('  ' + name.padEnd(26), size + 'x' + size, (buf.length / 1024).toFixed(1) + ' KB');
 }
