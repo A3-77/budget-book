@@ -31,3 +31,6 @@ Thumbs.db
 成果包_*.md
 tools/make_docx.py
 
+
+# 临时文件
+.chrome.pid
