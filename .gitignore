@@ -1,4 +1,42 @@
-# ===== 构建产物 =====
+# ============================================================
+#  这个文件夹是公用的，里面混着别的项目的东西
+#  （clash-chain / work / md2docx / 各种作业 docx …）
+#
+#  所以这里用「白名单」：默认全部忽略，只放行下面列出来的文件。
+#  这样即使误操作 git add -A，也不会把别的项目提交进这个公开仓库。
+#
+#  以后要加新文件，记得在下面加一行 !/文件名
+# ============================================================
+/*
+
+# ---------- 本项目：网页版（课程表） ----------
+!/.gitignore
+!/README.md
+!/index.html
+!/sw.js
+!/manifest.webmanifest
+!/server.mjs
+!/favicon-32.png
+!/icon-192.png
+!/icon-512.png
+!/icon-maskable-512.png
+!/apple-touch-icon.png
+!/预算本.ico
+
+# ---------- 本项目：安卓（已不再更新，源码保留） ----------
+!/android
+!/build-apk.mjs
+!/build-apk.bat
+!/start-emulator.bat
+!/start-lan-server.bat
+!/tools
+!/screenshots
+
+# ============================================================
+#  项目内部的排除项（在白名单放行之后再生效）
+# ============================================================
+
+# 构建产物
 android/app/build/
 android/build/
 android/.gradle/
@@ -6,31 +44,17 @@ android/.gradle/
 android/local.properties
 *.apk
 
-# ===== 签名密钥：绝对不要传到公开仓库 =====
+# 签名密钥：绝对不要传到公开仓库。
 # 别人拿到这个文件就能签出「能覆盖安装到你手机上」的假 APK。
-# 它只存在你本机，换电脑时记得手动拷过去。
+# 它只存在本机，换电脑时记得手动拷过去。
 android/budgetbook.jks
 android/keystore.properties
 
-# ===== 运行时产物 =====
+# 运行时产物
 启动日志.txt
 .ui.xml
-
-# ===== 编辑器 / 系统 =====
-.idea/
-*.iml
-.vscode/
-.DS_Store
-Thumbs.db
-
-# ===== 不属于这个项目的散落文件 =====
-# 这个目录里混进了别的项目的东西（2026-09-27 建），
-# 别顺手 git add -A 把它们提交进这个公开仓库
-.release-notes.md
-成果包/
-成果包_*.md
-tools/make_docx.py
-
-
-# 临时文件
 .chrome.pid
+.release-notes.md
+
+# tools/ 是整目录放行的，但里面混了别的项目的脚本，单独排掉
+tools/make_docx.py
